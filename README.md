@@ -19,3 +19,8 @@ The Nova grammar is maintained directly in `Cherri.novaextension/Syntaxes/Cherri
 
 For a scope-by-scope breakdown of the grammar, see `docs/nova-grammar.md`.
 
+## File Type Icons
+
+Nova does not expose a VS Code-style syntax contribution for assigning a custom icon file to a language extension in `extension.json` or syntax XML.
+
+Per Nova's Images documentation, file type icons are requested by image name using the `__filetype.` prefix. If this extension later adds sidebar UI for Cherri files, use `__filetype.cherri` for those sidebar item icons. Nova will then ask the application or Finder for the best icon associated with `.cherri` files.
