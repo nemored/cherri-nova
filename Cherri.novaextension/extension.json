@@ -8,6 +8,7 @@
     "languages"
   ],
   "homepage": "https://cherrilang.org",
+  "bugs": "https://github.com/nemored/cherri-nova/issues",
   "license": "MIT",
   "min_runtime": "1.0"
 }
