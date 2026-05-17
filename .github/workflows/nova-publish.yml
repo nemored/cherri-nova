@@ -81,7 +81,25 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          "${{ steps.nova.outputs.cli }}" extension whoami
+
+          stdout_file="$(mktemp)"
+          stderr_file="$(mktemp)"
+
+          "${{ steps.nova.outputs.cli }}" extension whoami >"${stdout_file}" 2>"${stderr_file}"
+
+          if grep -Fq "No developer account is signed in." "${stderr_file}"; then
+            cat "${stderr_file}" >&2
+            exit 1
+          fi
+
+          developer="$(tr -d '\r\n' <"${stdout_file}")"
+          if [[ -z "${developer}" ]]; then
+            echo "Nova CLI did not report a signed-in developer account." >&2
+            cat "${stderr_file}" >&2
+            exit 1
+          fi
+
+          echo "Signed in to Nova Extension Library as ${developer}."
 
       - name: Validate with Nova
         shell: bash
