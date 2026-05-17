@@ -3,7 +3,7 @@
   "name": "Cherri",
   "organization": "electrikmilk",
   "description": "Syntax highlighting and editor support for the Cherri Siri Shortcuts programming language.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "categories": [
     "languages"
   ],
