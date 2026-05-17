@@ -49,7 +49,8 @@
 
     <scopes>
         <include syntax="self" collection="comments" />
-        <include syntax="self" collection="strings" />
+        <include syntax="self" collection="double-quoted-strings" />
+        <include syntax="self" collection="single-quoted-strings" />
         <include syntax="self" collection="keywords" />
         <include syntax="self" collection="pragmas" />
         <include syntax="self" collection="constants" />
@@ -79,13 +80,32 @@
             </scope>
         </collection>
 
-        <collection name="strings">
+        <collection name="double-quoted-strings">
             <scope name="cherri.string">
                 <starts-with>
                     <expression>&quot;</expression>
                 </starts-with>
                 <ends-with>
                     <expression>&quot;</expression>
+                </ends-with>
+                <subscopes>
+        <scope name="cherri.character.escape">
+            <expression>\\.</expression>
+        </scope>
+        <scope name="cherri.string.interpolated">
+            <expression>\{.*?\}</expression>
+        </scope>
+                </subscopes>
+            </scope>
+        </collection>
+
+        <collection name="single-quoted-strings">
+            <scope name="cherri.string">
+                <starts-with>
+                    <expression>'</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>'</expression>
                 </ends-with>
                 <subscopes>
         <scope name="cherri.character.escape">
@@ -130,18 +150,13 @@
         </collection>
 
         <collection name="pragmas">
-        <scope name="cherri.keyword.pragma">
-            <strings suffix="\b">
-                <string>#include</string>
-                <string>#define</string>
-                <string>#import</string>
-                <string>#question</string>
-            </strings>
+        <scope name="cherri.processing">
+            <expression>(#include|#define|#import|#question)\b</expression>
         </scope>
         </collection>
 
         <collection name="constants">
-        <scope name="cherri.constant.language">
+        <scope name="cherri.identifier.constant">
             <strings>
                 <string>CurrentDate</string>
                 <string>Device</string>
@@ -151,13 +166,13 @@
                 <string>Ask</string>
             </strings>
         </scope>
-        <scope name="cherri.constant.numeric">
+        <scope name="cherri.value.number">
             <expression>\b[0-9]+\b</expression>
         </scope>
         </collection>
 
         <collection name="types">
-        <scope name="cherri.type">
+        <scope name="cherri.identifier.type">
             <strings>
                 <string>text</string>
                 <string>number</string>
@@ -172,19 +187,19 @@
         </collection>
 
         <collection name="declarations">
-        <scope name="cherri.identifier">
+        <scope name="cherri.identifier.variable">
             <expression>@[^ ]+\b</expression>
         </scope>
         </collection>
 
         <collection name="functions">
-        <scope name="cherri.function.call">
+        <scope name="cherri.identifier.function">
             <expression>\b[a-zA-Z_][a-zA-Z0-9_]*\b\(</expression>
         </scope>
         </collection>
 
         <collection name="identifiers">
-        <scope name="cherri.identifier">
+        <scope name="cherri.identifier.variable">
             <expression>\b[a-zA-Z_][a-zA-Z0-9_]*\b</expression>
         </scope>
         </collection>
