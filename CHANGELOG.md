@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3
+
+Commit: `c878d29` - Improve Nova grammar scopes
+
+- Updated the Nova grammar to use theme-friendly scope names for functions, variables, constants, types, numbers, and processing directives.
+- Added single-quoted string support.
+- Switched pragma matching to expression-based matching.
+- Added `docs/nova-grammar.md` with a scope-by-scope grammar reference and Syntax Inspector probe sample.
+
 ## 0.1.2
 
 Commit: `90bf30d` - Document Nova file type icons

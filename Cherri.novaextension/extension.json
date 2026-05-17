@@ -3,7 +3,7 @@
   "name": "Cherri",
   "organization": "nemored",
   "description": "Syntax highlighting and editor support for the Cherri Siri Shortcuts programming language.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "categories": [
     "languages"
   ],
