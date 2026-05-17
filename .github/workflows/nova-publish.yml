@@ -1,0 +1,96 @@
+name: Publish Nova Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: Type "publish" to submit this extension to the Nova Extension Library.
+        required: true
+        type: string
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+env:
+  EXTENSION_BUNDLE: Cherri.novaextension
+
+jobs:
+  publish:
+    name: Publish to Extension Library
+    runs-on: macos-latest
+    environment: nova-extension-library
+    if: github.event_name == 'push' || inputs.confirm_publish == 'publish'
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Nova
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list --cask nova >/dev/null 2>&1 || brew install --cask nova
+
+      - name: Resolve Nova CLI
+        id: nova
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${NOVA_CLI:-}" && -x "${NOVA_CLI}" ]]; then
+            cli="${NOVA_CLI}"
+          elif command -v nova >/dev/null 2>&1; then
+            cli="$(command -v nova)"
+          elif [[ -x "/Applications/Nova.app/Contents/SharedSupport/nova" ]]; then
+            cli="/Applications/Nova.app/Contents/SharedSupport/nova"
+          else
+            echo "Nova CLI was not found. Install Nova and expose its CLI as 'nova', or set NOVA_CLI." >&2
+            exit 1
+          fi
+
+          echo "cli=${cli}" >> "${GITHUB_OUTPUT}"
+          "${cli}" --version
+
+      - name: Load Nova credentials from 1Password
+        id: op-secrets
+        uses: 1password/load-secrets-action@v4
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          NOVA_EMAIL: ${{ vars.NOVA_EMAIL_1PASSWORD_REF }}
+          NOVA_PASSWORD: ${{ vars.NOVA_PASSWORD_1PASSWORD_REF }}
+
+      - name: Sign in to Nova Extension Library
+        shell: bash
+        env:
+          NOVA_EMAIL: ${{ steps.op-secrets.outputs.NOVA_EMAIL }}
+          NOVA_PASSWORD: ${{ steps.op-secrets.outputs.NOVA_PASSWORD }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${NOVA_EMAIL}" || -z "${NOVA_PASSWORD}" ]]; then
+            echo "NOVA_EMAIL and NOVA_PASSWORD must be loaded from 1Password before publishing." >&2
+            exit 1
+          fi
+
+          printf "%s\n%s\n" "${NOVA_EMAIL}" "${NOVA_PASSWORD}" | "${{ steps.nova.outputs.cli }}" extension login
+
+      - name: Verify Nova Library login
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${{ steps.nova.outputs.cli }}" extension whoami
+
+      - name: Validate with Nova
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${{ steps.nova.outputs.cli }}" extension validate "${EXTENSION_BUNDLE}"
+
+      - name: Publish with Nova
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${{ steps.nova.outputs.cli }}" extension publish "${EXTENSION_BUNDLE}"
