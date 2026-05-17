@@ -1,0 +1,13 @@
+{
+  "identifier": "dev.nemored.cherri",
+  "name": "Cherri",
+  "organization": "nemored",
+  "description": "Syntax highlighting and editor support for the Cherri Siri Shortcuts programming language.",
+  "version": "0.1.0",
+  "categories": [
+    "languages"
+  ],
+  "homepage": "https://cherrilang.org",
+  "license": "MIT",
+  "min_runtime": "1.0"
+}

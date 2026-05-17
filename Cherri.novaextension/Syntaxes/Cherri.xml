@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<syntax name="cherri">
+    <meta>
+        <name>Cherri</name>
+        <type>script</type>
+        <preferred-file-extension>cherri</preferred-file-extension>
+    </meta>
+
+    <detectors>
+        <extension priority="1.0">cherri</extension>
+    </detectors>
+
+    <comments>
+        <single>
+            <expression>//</expression>
+        </single>
+        <multiline>
+            <starts-with>
+                <expression>/*</expression>
+            </starts-with>
+            <ends-with>
+                <expression>*/</expression>
+            </ends-with>
+        </multiline>
+    </comments>
+
+    <brackets>
+        <pair open="{" close="}" />
+        <pair open="[" close="]" />
+        <pair open="(" close=")" />
+    </brackets>
+
+    <surrounding-pairs>
+        <pair open="{" close="}" />
+        <pair open="[" close="]" />
+        <pair open="(" close=")" />
+        <pair open="&quot;" close="&quot;" />
+        <pair open="'" close="'" />
+    </surrounding-pairs>
+
+    <indentation>
+        <increase>
+            <expression>(\{[^}"']*$)|(\[[^\]"']*$)|(\([^)'"']*$)</expression>
+        </increase>
+        <decrease>
+            <expression>^\s*[}\])]</expression>
+        </decrease>
+    </indentation>
+
+    <scopes>
+        <include syntax="self" collection="comments" />
+        <include syntax="self" collection="strings" />
+        <include syntax="self" collection="keywords" />
+        <include syntax="self" collection="pragmas" />
+        <include syntax="self" collection="constants" />
+        <include syntax="self" collection="types" />
+        <include syntax="self" collection="declarations" />
+        <include syntax="self" collection="functions" />
+        <include syntax="self" collection="identifiers" />
+    </scopes>
+
+    <collections>
+        <collection name="comments">
+            <scope name="cherri.comment.block" spell-check="true">
+                <starts-with>
+                    <expression>/\*</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>\*/</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="cherri.comment.line" spell-check="true">
+                        <expression>//.*$</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+            <scope name="cherri.comment.line" spell-check="true">
+                <expression>//.*$</expression>
+            </scope>
+        </collection>
+
+        <collection name="strings">
+            <scope name="cherri.string">
+                <starts-with>
+                    <expression>&quot;</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>&quot;</expression>
+                </ends-with>
+                <subscopes>
+        <scope name="cherri.character.escape">
+            <expression>\\.</expression>
+        </scope>
+        <scope name="cherri.string.interpolated">
+            <expression>\{.*?\}</expression>
+        </scope>
+                </subscopes>
+            </scope>
+        </collection>
+
+        <collection name="keywords">
+        <scope name="cherri.keyword">
+            <strings>
+                <string>if</string>
+                <string>else</string>
+                <string>repeat</string>
+                <string>for</string>
+                <string>color</string>
+                <string>name</string>
+                <string>glyph</string>
+                <string>from</string>
+                <string>mac</string>
+                <string>inputs</string>
+                <string>noinput</string>
+                <string>askfor</string>
+                <string>getclipboard</string>
+                <string>menu</string>
+                <string>item</string>
+                <string>list</string>
+                <string>nil</string>
+                <string>const</string>
+                <string>action</string>
+                <string>in</string>
+                <string>stop</string>
+                <string>makeVCard</string>
+                <string>rawAction</string>
+                <string>embedFile</string>
+            </strings>
+        </scope>
+        </collection>
+
+        <collection name="pragmas">
+        <scope name="cherri.keyword.pragma">
+            <strings suffix="\b">
+                <string>#include</string>
+                <string>#define</string>
+                <string>#import</string>
+                <string>#question</string>
+            </strings>
+        </scope>
+        </collection>
+
+        <collection name="constants">
+        <scope name="cherri.constant.language">
+            <strings>
+                <string>CurrentDate</string>
+                <string>Device</string>
+                <string>RepeatIndex</string>
+                <string>RepeatItem</string>
+                <string>ShortcutInput</string>
+                <string>Ask</string>
+            </strings>
+        </scope>
+        <scope name="cherri.constant.numeric">
+            <expression>\b[0-9]+\b</expression>
+        </scope>
+        </collection>
+
+        <collection name="types">
+        <scope name="cherri.type">
+            <strings>
+                <string>text</string>
+                <string>number</string>
+                <string>bool</string>
+                <string>dictionary</string>
+                <string>array</string>
+                <string>variable</string>
+                <string>color</string>
+                <string>float</string>
+            </strings>
+        </scope>
+        </collection>
+
+        <collection name="declarations">
+        <scope name="cherri.identifier">
+            <expression>@[^ ]+\b</expression>
+        </scope>
+        </collection>
+
+        <collection name="functions">
+        <scope name="cherri.function.call">
+            <expression>\b[a-zA-Z_][a-zA-Z0-9_]*\b\(</expression>
+        </scope>
+        </collection>
+
+        <collection name="identifiers">
+        <scope name="cherri.identifier">
+            <expression>\b[a-zA-Z_][a-zA-Z0-9_]*\b</expression>
+        </scope>
+        </collection>
+    </collections>
+</syntax>
