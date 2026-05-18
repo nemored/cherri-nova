@@ -2,9 +2,15 @@ name: Nova CI
 
 on:
   pull_request:
+    paths:
+      - ".github/workflows/nova-ci.yml"
+      - "Cherri.novaextension/**"
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/nova-ci.yml"
+      - "Cherri.novaextension/**"
 
 permissions:
   contents: read
