@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.4
 
 - Added GitHub Actions workflows for validating and publishing the Nova extension.
 - Added 1Password-backed credential loading for Nova Extension Library publishing.
