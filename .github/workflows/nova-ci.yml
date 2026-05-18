@@ -1,0 +1,114 @@
+name: Nova CI
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/nova-ci.yml"
+      - "Cherri.novaextension/**"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/nova-ci.yml"
+      - "Cherri.novaextension/**"
+
+permissions:
+  contents: read
+
+env:
+  EXTENSION_BUNDLE: Cherri.novaextension
+  ARTIFACT_ROOT: artifact
+
+jobs:
+  validate:
+    name: Validate Extension
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+
+      - name: Check latest commit paths
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            changed_files="$(git diff-tree --no-commit-id --name-only -r HEAD)"
+          else
+            changed_files="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}")"
+          fi
+
+          should_validate="false"
+          while IFS= read -r path; do
+            case "${path}" in
+              .github/workflows/nova-ci.yml|Cherri.novaextension/*)
+                should_validate="true"
+                break
+                ;;
+            esac
+          done <<< "${changed_files}"
+
+          echo "should_validate=${should_validate}" >> "${GITHUB_OUTPUT}"
+
+      - name: Install Nova
+        if: steps.changes.outputs.should_validate == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew list --cask nova >/dev/null 2>&1 || brew install --cask nova
+
+      - name: Resolve Nova CLI
+        if: steps.changes.outputs.should_validate == 'true'
+        id: nova
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -n "${NOVA_CLI:-}" && -x "${NOVA_CLI}" ]]; then
+            cli="${NOVA_CLI}"
+          elif command -v nova >/dev/null 2>&1; then
+            cli="$(command -v nova)"
+          elif [[ -x "/Applications/Nova.app/Contents/SharedSupport/nova" ]]; then
+            cli="/Applications/Nova.app/Contents/SharedSupport/nova"
+          else
+            echo "Nova CLI was not found. Install Nova and expose its CLI as 'nova', or set NOVA_CLI." >&2
+            exit 1
+          fi
+
+          echo "cli=${cli}" >> "${GITHUB_OUTPUT}"
+          "${cli}" --version
+
+      - name: Validate manifest JSON
+        if: steps.changes.outputs.should_validate == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool "${EXTENSION_BUNDLE}/extension.json" >/dev/null
+
+      - name: Validate with Nova
+        if: steps.changes.outputs.should_validate == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          "${{ steps.nova.outputs.cli }}" extension validate "${EXTENSION_BUNDLE}"
+
+      - name: Stage extension bundle artifact
+        if: steps.changes.outputs.should_validate == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${ARTIFACT_ROOT}"
+          ditto --norsrc --noextattr "${EXTENSION_BUNDLE}" "${ARTIFACT_ROOT}/${EXTENSION_BUNDLE}"
+
+      - name: Upload extension bundle
+        if: steps.changes.outputs.should_validate == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cherri.novaextension
+          path: ${{ env.ARTIFACT_ROOT }}/*
+          if-no-files-found: error

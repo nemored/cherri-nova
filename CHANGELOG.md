@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Added GitHub Actions workflows for validating and publishing the Nova extension.
+- Added 1Password-backed credential loading for Nova Extension Library publishing.
+
 ## 0.1.3
 
 Commit: `c878d29` - Improve Nova grammar scopes
