@@ -111,4 +111,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          "${{ steps.nova.outputs.cli }}" extension publish "${EXTENSION_BUNDLE}"
+          printf "y\n" | "${{ steps.nova.outputs.cli }}" extension publish "${EXTENSION_BUNDLE}"
